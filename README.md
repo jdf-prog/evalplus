@@ -83,10 +83,16 @@ Want to know more details? Read our papers & materials!
 pip install --upgrade "evalplus[vllm] @ git+https://github.com/evalplus/evalplus"
 # Or `pip install "evalplus[vllm]" --upgrade` for the latest stable release
 
-evalplus.evaluate --model "ise-uiuc/Magicoder-S-DS-6.7B" \
-                  --dataset [humaneval|mbpp]             \
+evalplus.evaluate --model "CodeDPO/qwen25-coder-inst-7b-reinforce-plus_v2_mini_processed_r1_cold_start" \
+                  --dataset humaneval             \
                   --backend vllm                         \
                   --greedy
+
+
+evalplus.evaluate --model "CodeDPO/qwen25-coder-base-7b-reinforce-plus_v2_mini_processed_r1_grpo_kl" \
+                  --dataset humaneval             \
+                  --backend vllm                         \
+                  --greedy --i_just_wanna_run
 ```
 
 <details><summary>🛡️ Safe code execution within Docker <i>:: click to expand ::</i></summary>
@@ -94,7 +100,7 @@ evalplus.evaluate --model "ise-uiuc/Magicoder-S-DS-6.7B" \
 
 ```bash
 # Local generation
-evalplus.codegen --model "ise-uiuc/Magicoder-S-DS-6.7B" \
+evalplus.codegen --model "CodeDPO/qwen25-ins-7b-testcaserm-7b-reinforce-plus_new_dataset" \
                  --dataset humaneval                    \
                  --backend vllm                         \
                  --greedy

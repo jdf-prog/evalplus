@@ -1,5 +1,5 @@
 from typing import List
-
+import regex as re
 from transformers import AutoTokenizer
 from vllm import LLM, SamplingParams
 
@@ -40,11 +40,15 @@ class VllmDecoder(DecoderBase):
         else:
             tokenizer_kwargs["gguf_file"] = gguf_file
         self.tokenizer = AutoTokenizer.from_pretrained(self.name, **tokenizer_kwargs)
-        if self.is_direct_completion():
-            self.eos += extra_eos_for_direct_completion(dataset)
-        else:
-            self.eos += ["\n```\n"]
-        self.llm = LLM(model=name, max_model_len=2048, **kwargs)
+        # if self.is_direct_completion():
+        #     self.eos += extra_eos_for_direct_completion(dataset)
+        # else:
+        #     self.eos += ["\n```\n"]
+        
+        # <think> ... </think> ......
+        print(f"EOS: {self.eos}")
+        self.llm = LLM(model=name, max_model_len=8192, **kwargs)
+        self.max_new_tokens = 8192 # 768, 32k
 
     def is_direct_completion(self) -> bool:
         return self.force_base_prompt or self.tokenizer.chat_template is None
@@ -76,4 +80,5 @@ class VllmDecoder(DecoderBase):
         )
 
         gen_strs = [x.outputs[0].text.replace("\t", "    ") for x in vllm_outputs]
+        gen_strs = [re.sub(r"<think>(.|\n)*?</think>", "", x) for x in gen_strs]
         return gen_strs

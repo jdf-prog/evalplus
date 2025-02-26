@@ -48,13 +48,24 @@ def make_raw_chat_prompt(
 {_MAGIC_SPLITTER_}
 ```
 """
+    # task_prompt = tokenizer.apply_chat_template(
+    #     [
+    #         {"role": "user", "content": task_prompt},
+    #         {"role": "assistant", "content": response},
+    #     ],
+    #     tokenize=False,
+    # ).split(_MAGIC_SPLITTER_)[0]
     task_prompt = tokenizer.apply_chat_template(
         [
+            {"role": "system", "content": """\
+A conversation between User and Assistant. The user asks a question, and the Assistant solves it. The assistant first thinks about the reasoning process in the mind and then provides the user with the answer. The reasoning process and answer are enclosed within <think> </think> and <answer> </answer> tags, respectively, i.e., <think> reasoning process here </think> <answer> answer here </answer>.
+"""},
             {"role": "user", "content": task_prompt},
-            {"role": "assistant", "content": response},
+            # {"role": "assistant", "content": response},
         ],
         tokenize=False,
-    ).split(_MAGIC_SPLITTER_)[0]
+        add_generation_prompt=True
+    )
     return task_prompt
 
 
