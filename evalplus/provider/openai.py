@@ -43,7 +43,9 @@ class OpenAIChatDecoder(DecoderBase):
 
         outputs = []
         for item in ret.choices:
-            outputs.append(item.message.content)
+            # outputs.append(item.message.content)
+            outputs.append(item.text)
+        print(outputs)
 
         return outputs
 

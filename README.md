@@ -208,6 +208,12 @@ evalplus.evaluate --model "deepseek-chat"              \
                   --base-url https://api.deepseek.com  \
                   --backend openai --greedy
 
+export OPENAI_API_KEY="{KEY}" # https://platform.deepseek.com/api_keys
+evalplus.evaluate --model "VerlTool/acecoder-fsdp-qwen_qwen2.5-coder-1.5b-grpo-n16-b128-t1.0-lr1e-6-69k-sys3-250-step"              \
+                  --dataset humaneval           \
+                  --base-url http://0.0.0.0:5000  \
+                  --backend openai --greedy
+
 # Grok
 export OPENAI_API_KEY="{KEY}" # https://console.x.ai/
 evalplus.evaluate --model "grok-beta"             \
@@ -285,7 +291,7 @@ You can checkout the generation and results at `evalplus_results/[humaneval|mbpp
 git clone https://github.com/evalplus/evalplus.git
 cd evalplus
 export PYTHONPATH=$PYTHONPATH:$(pwd)
-pip install -r requirements.txt
+uv pip install -r requirements.txt
 ```
 
 </div>

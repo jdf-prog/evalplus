@@ -37,7 +37,24 @@ def codegen(
 
     backend_type: str = type(model).__name__
     with progress(backend_type) as p:
-        for task_id, task in p.track(dataset.items()):
+        all_prompts = [task["prompt"].strip()+"\n" for task in dataset.values()]
+        from concurrent.futures import ThreadPoolExecutor
+        from tqdm import tqdm
+        input_args = [
+            {
+                "prompt": prompt,
+                "do_sample": not greedy,
+                "num_samples": n_samples,
+            }
+            for prompt in all_prompts
+        ]
+        with ThreadPoolExecutor(max_workers=16) as executor:
+            all_outputs = list(tqdm(executor.map(model.codegen, 
+                                                 all_prompts, [not greedy] * len(all_prompts), [n_samples] * len(all_prompts)
+                                                 ), total=len(input_args), desc="Generating code"))
+        
+        
+        for task_idx, (task_id, task) in enumerate(p.track(dataset.items())):
             if id_range is not None:
                 id_num = int(task_id.split("/")[1])
                 low, high = id_range
@@ -58,20 +75,22 @@ def codegen(
 
             n_more_samples = n_samples
             log = f"Codegen: {task_id} @ {model}"
-            if resume and task2nexist.get(task_id, 0) > 0:
+            if resume and task2nexist.get(task_id, 0) > 0 and False:
                 log += f" (resuming from {task2nexist[task_id]})"
                 n_more_samples -= task2nexist[task_id]
 
             p.console.print(log)
 
             sidx = n_samples - n_more_samples
+            sidx = 0
             while sidx < n_samples:
                 prompt = task["prompt"].strip() + "\n"
-                outputs = model.codegen(
-                    prompt,
-                    do_sample=not greedy,
-                    num_samples=n_samples - sidx,
-                )
+                # outputs = model.codegen(
+                #     prompt,
+                #     do_sample=not greedy,
+                #     num_samples=n_samples - sidx,
+                # )
+                outputs = all_outputs[task_idx]
                 assert outputs, "No outputs from model!"
                 for impl in outputs:
                     solution = prompt + impl if model.is_direct_completion() else impl
